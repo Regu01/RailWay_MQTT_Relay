@@ -5,7 +5,7 @@ Firmware ESP32-WROOM-32E pour piloter des relais via MQTT.
 ## Prérequis
 - Broker MQTT accessible
 - WiFi SSID / Password
-- PlatformIO + dépendances (`PubSubClient`, `ArduinoLog`, `PCA95x5`, `EEPROM`)
+- PlatformIO + dépendances (`PubSubClient`, `ArduinoLog`)
 
 ## Installation
 ```bash

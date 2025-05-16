@@ -18,10 +18,12 @@ void publishRelayStates();
 void setupLogging();
 
 void setup() {
+  delay(1000);
   Serial.begin(115200);
   setupLogging();
   Log.info("Starting %s...\n", DEVICE_ID);
-
+  delay(1000);
+  
   // Initialize all relays off
   for (int i = 0; i < RELAY_COUNT; ++i) {
     pinMode(RELAY_PINS[i], OUTPUT);
@@ -79,7 +81,7 @@ void setupWiFi() {
 
 bool mqttReconnect() {
   String clientId    = String(DEVICE_ID);
-  String topicStatus = String(BASE_TOPIC) + "/" + DEVICE_ID + "/status";
+  String topicStatus = String(BASE_TOPIC) + "/" + DEVICE_ID + "/card_state";
   String relayBase   = String(BASE_TOPIC) + "/" + DEVICE_ID + "/relay/";
 
   bool ok = mqtt.connect(
@@ -121,12 +123,12 @@ void callback(char* topic, byte* payload, unsigned int len) {
       int idx = suffix.substring(0, slash).toInt();
       String action = suffix.substring(slash + 1);
       if (idx >= 0 && idx < RELAY_COUNT && action == "set") {
-        bool on = (msg == "ON");
+        bool on = (msg == "THROWN");
         bool currentState = digitalRead(RELAY_PINS[idx]);
         if (currentState != on) {
           digitalWrite(RELAY_PINS[idx], on ? HIGH : LOW);
           String stateTopic = prefix + String(idx) + "/state";
-          mqtt.publish(stateTopic.c_str(), on ? "ON" : "OFF", true);
+          mqtt.publish(stateTopic.c_str(), on ? "THROWN" : "CLOSED", true);
         }
       }
     }
@@ -139,7 +141,7 @@ void publishRelayStates() {
   String base = String(BASE_TOPIC) + "/" + DEVICE_ID + "/relay/";
   for (int i = 0; i < RELAY_COUNT; ++i) {
     String t = base + String(i) + "/state";
-    const char* s = digitalRead(RELAY_PINS[i]) ? "ON" : "OFF";
+    const char* s = digitalRead(RELAY_PINS[i]) ? "THROWN" : "CLOSED";
     mqtt.publish(t.c_str(), s, true);
   }
 }
